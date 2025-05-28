@@ -283,7 +283,7 @@ function GeminiLiveMVP() {
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 pb-safe bg-gradient-to-t from-black/60 via-black/30 to-transparent backdrop-blur-md">
-          <div className="flex items-center justify-between px-4 py-6 pb-8 min-h-[120px]">
+          <div className="flex items-center justify-between px-4 py-6 pb-8 md:py-6 md:pb-8 md:min-h-[120px] min-h-[200px]">
             <div className="w-16"></div>
             
             <button

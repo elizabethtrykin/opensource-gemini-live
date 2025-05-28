@@ -51,6 +51,19 @@ html, body {
   padding-bottom: 1.5rem;
 }
 
+/* Mobile-specific large bottom padding */
+@media screen and (max-width: 768px) {
+  @supports (padding: max(0px)) {
+    .pb-safe {
+      padding-bottom: max(6rem, env(safe-area-inset-bottom));
+    }
+  }
+  
+  .pb-safe {
+    padding-bottom: 6rem;
+  }
+}
+
 /* Mobile viewport fix */
 @media screen and (max-height: 700px) {
   .min-h-\[120px\] {
