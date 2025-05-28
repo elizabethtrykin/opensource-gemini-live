@@ -1,8 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+This is a **Gemini Live Clone** - a [Next.js](https://nextjs.org) project that combines real-time voice AI with computer vision capabilities, similar to Google's Gemini Live feature.
+
+## Features
+
+- 🎥 **Real-time camera capture** from user's webcam
+- 🗣️ **Voice conversations** using Vapi AI
+- 👁️ **Computer vision analysis** using Google Gemini 2.0 Flash
+- 🔄 **Multimodal AI interaction** - the AI can see what you're showing and talk about it
+
+## Setup
+
+### 1. Environment Variables
+
+Create a `.env.local` file in the root directory with:
+
+```env
+# Vapi AI Configuration
+NEXT_PUBLIC_VAPI_PUBLIC_KEY=your_vapi_public_key_here
+NEXT_PUBLIC_VAPI_ASSISTANT_ID=your_vapi_assistant_id_here
+
+# Google Gemini API Configuration (server-side only for security)
+GOOGLE_API_KEY=your_google_gemini_api_key_here
+```
+
+### 2. Get API Keys
+
+- **Vapi AI**: Sign up at [vapi.ai](https://vapi.ai) and get your public key and assistant ID
+- **Google Gemini**: Get your API key from [Google AI Studio](https://aistudio.google.com/app/apikey)
+
+### 3. Install Dependencies
+
+```bash
+npm install
+```
 
 ## Getting Started
 
-First, run the development server:
+Run the development server:
 
 ```bash
 npm run dev
@@ -16,9 +49,21 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## How to Use
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Allow camera access** when prompted by your browser
+2. **Click "Start Voice"** to begin the voice conversation with the AI
+3. **Click "Analyze Frame"** to manually ask the AI what it sees in your camera
+4. **Talk naturally** - the AI will automatically see what you're showing and can discuss it
+
+The AI will automatically analyze your camera feed every few seconds and use that visual context in your conversation.
+
+## Technical Details
+
+- **Camera capture**: 320x240 resolution at ~1 FPS for vision analysis
+- **Vision processing**: Google Gemini 2.0 Flash with smart throttling to avoid rate limits
+- **Voice AI**: Vapi.ai for real-time voice conversations
+- **Integration**: Vision descriptions are injected into the conversation context using Vapi's add-message feature
 
 ## Learn More
 
