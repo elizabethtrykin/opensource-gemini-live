@@ -31,10 +31,31 @@ body {
 /* Ensure full screen app */
 html, body {
   height: 100%;
+  height: 100vh;
+  height: 100dvh;
   margin: 0;
   padding: 0;
   overflow: hidden;
   background: black;
+}
+
+/* Mobile safe area support */
+@supports (padding: max(0px)) {
+  .pb-safe {
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+  }
+}
+
+/* Fallback for browsers without safe area support */
+.pb-safe {
+  padding-bottom: 1.5rem;
+}
+
+/* Mobile viewport fix */
+@media screen and (max-height: 700px) {
+  .min-h-\[120px\] {
+    min-height: 100px;
+  }
 }
 
 /* Prevent zoom on mobile */

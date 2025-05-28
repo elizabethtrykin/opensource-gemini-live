@@ -282,50 +282,52 @@ function GeminiLiveMVP() {
           </div>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black/60 via-black/30 to-transparent backdrop-blur-md flex items-center justify-between px-4">
-          <div className="w-16"></div>
-          
-          <button
-            onClick={callActive ? handleStopCall : handleStartCall}
-            className={`
-              w-20 h-20 rounded-full flex items-center justify-center
-              transition-all duration-200 backdrop-blur-sm
-              ${callActive 
-                ? 'bg-red-500 hover:bg-red-600 border-4 border-red-300 active:scale-95' 
-                : 'bg-white hover:bg-gray-100 active:scale-95'
-              }
-            `}
-          >
-            {callActive ? (
-              <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M6 6h12v12H6z"/>
-              </svg>
-            ) : (
-              <FontAwesomeIcon 
-                icon={faPhone} 
-                size="lg"
-                style={{ fontSize: '24px', color: 'black' }}
-              />
-            )}
-          </button>
+        <div className="absolute bottom-0 left-0 right-0 pb-safe bg-gradient-to-t from-black/60 via-black/30 to-transparent backdrop-blur-md">
+          <div className="flex items-center justify-between px-4 py-6 pb-8 min-h-[120px]">
+            <div className="w-16"></div>
+            
+            <button
+              onClick={callActive ? handleStopCall : handleStartCall}
+              className={`
+                w-20 h-20 rounded-full flex items-center justify-center
+                transition-all duration-200 backdrop-blur-sm
+                ${callActive 
+                  ? 'bg-red-500 hover:bg-red-600 border-4 border-red-300 active:scale-95' 
+                  : 'bg-white hover:bg-gray-100 active:scale-95'
+                }
+              `}
+            >
+              {callActive ? (
+                <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M6 6h12v12H6z"/>
+                </svg>
+              ) : (
+                <FontAwesomeIcon 
+                  icon={faPhone} 
+                  size="lg"
+                  style={{ fontSize: '24px', color: 'black' }}
+                />
+              )}
+            </button>
 
-          <button
-            onClick={() => analyzeCurrentFrame("What do you see?")}
-            disabled={!callActive || !visionProcessor || visionProcessing}
-            className={`
-              w-16 h-16 rounded-full border-4 border-white/30 flex items-center justify-center
-              transition-all duration-200 backdrop-blur-sm
-              ${(!callActive || !visionProcessor || visionProcessing) 
-                ? 'bg-gray-600/50 cursor-not-allowed' 
-                : 'bg-white/20 hover:bg-white/30 active:scale-95'
-              }
-            `}
-          >
-            <div className={`
-              w-8 h-8 rounded-full 
-              ${visionProcessing ? 'bg-yellow-400 animate-pulse' : 'bg-white'}
-            `} />
-          </button>
+            <button
+              onClick={() => analyzeCurrentFrame("What do you see?")}
+              disabled={!callActive || !visionProcessor || visionProcessing}
+              className={`
+                w-16 h-16 rounded-full border-4 border-white/30 flex items-center justify-center
+                transition-all duration-200 backdrop-blur-sm
+                ${(!callActive || !visionProcessor || visionProcessing) 
+                  ? 'bg-gray-600/50 cursor-not-allowed' 
+                  : 'bg-white/20 hover:bg-white/30 active:scale-95'
+                }
+              `}
+            >
+              <div className={`
+                w-8 h-8 rounded-full 
+                ${visionProcessing ? 'bg-yellow-400 animate-pulse' : 'bg-white'}
+              `} />
+            </button>
+          </div>
         </div>
 
         {isClient && (!vapiPublicKey || !vapiAssistantId) && (
