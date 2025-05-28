@@ -1,18 +1,32 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
 
+const VISION_PROMPT = `You generate clear, detailed descriptions of what's visible in a camera image for a voice agent.
+Be specific and descriptive.
+Transcribe all visible text, code, or handwritten content exactly as it appears.
+Mention notable objects, people, screens, diagrams, product labels, and relevant details.
+Use 1–3 sentences.
+Do not mention photos, images, or cameras—just describe what is present.
+
+Examples:
+"A person holds a book titled 'Clean Code' by Robert Martin. The cover says: 'A Handbook of Agile Software Craftsmanship.'"
+"A whiteboard with handwritten text: 'E = mc^2' and a diagram of an atom."
+"Three people sit at a table. Two use MacBook laptops; one holds a coffee cup."
+
+No opinions or commentary—only clear, factual, and descriptive summaries.`;
+
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
 const model = genAI.getGenerativeModel({ 
   model: "gemini-2.0-flash-lite",
   generationConfig: {
-    maxOutputTokens: 80,
+    maxOutputTokens: 150,
     temperature: 0.2,
     topP: 0.8,
   }
 });
 
 let lastRequestTime = 0;
-const MIN_REQUEST_INTERVAL = 5000;
+const MIN_REQUEST_INTERVAL = 3000;
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,7 +45,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { imageBase64, userPrompt, context } = await request.json();
+    const { imageBase64, userPrompt } = await request.json();
 
     if (!imageBase64) {
       return NextResponse.json(
@@ -42,17 +56,7 @@ export async function POST(request: NextRequest) {
 
     lastRequestTime = now;
 
-    let prompt = "Describe what you see briefly for a voice conversation (max 30 words).";
-    
-    if (userPrompt) {
-      prompt = `User asks: "${userPrompt}". Describe what you see in 40 words or less.`;
-    } else if (context) {
-      if (context.includes('person')) {
-        prompt = "What is the person doing now? Focus on actions and objects. 30 words max.";
-      } else if (context.includes('document') || context.includes('text')) {
-        prompt = "Describe any text or document content visible. 35 words max.";
-      }
-    }
+    const prompt = userPrompt || VISION_PROMPT;
 
     const result = await model.generateContent([
       prompt,
