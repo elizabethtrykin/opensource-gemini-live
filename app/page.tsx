@@ -29,6 +29,8 @@ function GeminiLiveMVP() {
   const [visionProcessing, setVisionProcessing] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const [visionHistory, setVisionHistory] = useState<string[]>([]);
+  const [cameraFacingMode, setCameraFacingMode] = useState<'user' | 'environment'>('user');
+  const [availableCameras, setAvailableCameras] = useState<MediaDeviceInfo[]>([]);
 
   const lastApiCallTime = useRef(0);
   const MIN_API_INTERVAL = 3000;
@@ -45,7 +47,14 @@ function GeminiLiveMVP() {
     
     async function setupCamera() {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        // Enumerate available cameras
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const cameras = devices.filter(device => device.kind === 'videoinput');
+        setAvailableCameras(cameras);
+
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { facingMode: cameraFacingMode } 
+        });
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           setHasCamera(true);
@@ -60,7 +69,7 @@ function GeminiLiveMVP() {
         (videoRef.current.srcObject as MediaStream).getTracks().forEach(track => track.stop());
       }
     };
-  }, [isClient]);
+  }, [isClient, cameraFacingMode]);
 
   useEffect(() => {
     if (!isClient || !hasCamera || !callActive || !visionProcessor || !vapi) return;
@@ -241,6 +250,13 @@ function GeminiLiveMVP() {
     }
   };
 
+  const switchCamera = async () => {
+    if (availableCameras.length < 2) return;
+    
+    const newFacingMode = cameraFacingMode === 'user' ? 'environment' : 'user';
+    setCameraFacingMode(newFacingMode);
+  };
+
   return (
     <div className="relative w-full h-screen bg-black overflow-hidden">
       <div className="relative w-full h-full flex items-center justify-center">
@@ -267,6 +283,16 @@ function GeminiLiveMVP() {
               Vapi Live
             </div>
             <div className="flex items-center space-x-2">
+              <button
+                onClick={switchCamera}
+                className="bg-white/20 hover:bg-white/30 rounded-full p-2 transition-all duration-200"
+                title={`Switch to ${cameraFacingMode === 'user' ? 'back' : 'front'} camera (${availableCameras.length} cameras available)`}
+              >
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </button>
               {visionProcessing && (
                 <div className="flex items-center space-x-1 text-white/80 text-sm">
                   <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
@@ -284,50 +310,50 @@ function GeminiLiveMVP() {
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 pb-safe bg-gradient-to-t from-black/60 via-black/30 to-transparent backdrop-blur-md">
-          <div className="flex items-center justify-between px-4 py-12 pb-24 md:py-6 md:pb-8 md:min-h-[120px] min-h-[300px]">
-            <div className="w-16"></div>
-            
-            <button
-              onClick={callActive ? handleStopCall : handleStartCall}
-              className={`
-                w-20 h-20 rounded-full flex items-center justify-center
-                transition-all duration-200 backdrop-blur-sm
-                ${callActive 
-                  ? 'bg-red-500 hover:bg-red-600 border-4 border-red-300 active:scale-95' 
-                  : 'bg-white hover:bg-gray-100 active:scale-95'
-                }
-              `}
-            >
-              {callActive ? (
-                <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M6 6h12v12H6z"/>
-                </svg>
-              ) : (
-                <FontAwesomeIcon 
-                  icon={faPhone} 
-                  size="lg"
-                  style={{ fontSize: '24px', color: 'black' }}
-                />
-              )}
-            </button>
+          <div className="flex items-center justify-between px-4 py-6 pb-10 md:py-6 md:pb-8 md:min-h-[120px] min-h-[160px]">
+          <div className="w-16"></div>
+          
+          <button
+            onClick={callActive ? handleStopCall : handleStartCall}
+            className={`
+              w-20 h-20 rounded-full flex items-center justify-center
+              transition-all duration-200 backdrop-blur-sm
+              ${callActive 
+                ? 'bg-red-500 hover:bg-red-600 border-4 border-red-300 active:scale-95' 
+                : 'bg-white hover:bg-gray-100 active:scale-95'
+              }
+            `}
+          >
+            {callActive ? (
+              <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M6 6h12v12H6z"/>
+              </svg>
+            ) : (
+              <FontAwesomeIcon 
+                icon={faPhone} 
+                size="lg"
+                style={{ fontSize: '24px', color: 'black' }}
+              />
+            )}
+          </button>
 
-            <button
-              onClick={() => analyzeCurrentFrame("What do you see?")}
-              disabled={!callActive || !visionProcessor || visionProcessing}
-              className={`
-                w-16 h-16 rounded-full border-4 border-white/30 flex items-center justify-center
-                transition-all duration-200 backdrop-blur-sm
-                ${(!callActive || !visionProcessor || visionProcessing) 
-                  ? 'bg-gray-600/50 cursor-not-allowed' 
-                  : 'bg-white/20 hover:bg-white/30 active:scale-95'
-                }
-              `}
-            >
-              <div className={`
-                w-8 h-8 rounded-full 
-                ${visionProcessing ? 'bg-yellow-400 animate-pulse' : 'bg-white'}
-              `} />
-            </button>
+          <button
+            onClick={() => analyzeCurrentFrame("What do you see?")}
+            disabled={!callActive || !visionProcessor || visionProcessing}
+            className={`
+              w-16 h-16 rounded-full border-4 border-white/30 flex items-center justify-center
+              transition-all duration-200 backdrop-blur-sm
+              ${(!callActive || !visionProcessor || visionProcessing) 
+                ? 'bg-gray-600/50 cursor-not-allowed' 
+                : 'bg-white/20 hover:bg-white/30 active:scale-95'
+              }
+            `}
+          >
+            <div className={`
+              w-8 h-8 rounded-full 
+              ${visionProcessing ? 'bg-yellow-400 animate-pulse' : 'bg-white'}
+            `} />
+          </button>
           </div>
         </div>
 

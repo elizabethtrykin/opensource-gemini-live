@@ -55,12 +55,12 @@ html, body {
 @media screen and (max-width: 768px) {
   @supports (padding: max(0px)) {
     .pb-safe {
-      padding-bottom: max(15rem, env(safe-area-inset-bottom));
+      padding-bottom: max(8rem, env(safe-area-inset-bottom));
     }
   }
   
   .pb-safe {
-    padding-bottom: 15rem;
+    padding-bottom: 8rem;
   }
 }
 
